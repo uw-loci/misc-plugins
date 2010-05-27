@@ -26,6 +26,7 @@ public class Roi_Map implements PlugInFilter {
     static final int MAX_16_BIT = 65535;
     static final String OUT_TITLE = "Roi Map";
     ImagePlus m_imp;
+    ColorModel m_colorModel;
     
     public int setup(String arg, ImagePlus imp) {
         if (arg.equals("about")) {
@@ -55,7 +56,10 @@ public class Roi_Map implements PlugInFilter {
         
             if (MAX_8_BIT >= rois.length) {
                 outImageProcessor = new ByteProcessor(width, height);
-                outImageProcessor.setColorModel(createColorModel());
+                if (null == m_colorModel) {
+                    m_colorModel = createColorModel();
+                }
+                outImageProcessor.setColorModel(m_colorModel);
             }
             else if (MAX_16_BIT > rois.length) {
                 outImageProcessor = new ShortProcessor(width, height);
@@ -100,13 +104,6 @@ public class Roi_Map implements PlugInFilter {
         byte[] rPalette = new byte[256];
         byte[] gPalette = new byte[256];
         byte[] bPalette = new byte[256];
-        byte[] aPalette = new byte[256];
-
-        // set transparency //TODO not working
-        aPalette[0] = (byte) 0x00;
-        for (int i = 0; i < 256; ++i) {
-            aPalette[i] = (byte) 0xff;
-        }
 
         int i = 1;
         for (int red = 0; red < 8; ++red) {
@@ -121,7 +118,7 @@ public class Roi_Map implements PlugInFilter {
                 }
             }
         }
-        ColorModel colorModel = new IndexColorModel(8, 256, rPalette, gPalette, bPalette, aPalette);
+        ColorModel colorModel = new IndexColorModel(8, 256, rPalette, gPalette, bPalette);
         return colorModel;
     }
 }
