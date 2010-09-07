@@ -73,8 +73,8 @@ public class Roi_Map implements PlugInFilter {
                     outImageProcessor.setColor(roiColor++);
                     Rectangle bounds = roi.getBounds();
                 
-                    for (int y = 0; y < bounds.height; ++y) {
-                        for (int x = 0; x < bounds.width; ++x) {
+                    for (int x = 0; x < bounds.width; ++x) {
+                        for (int y = 0; y < bounds.height; ++y) {
                             if (roi.contains(bounds.x + x, bounds.y + y)) {
                                 outImageProcessor.drawPixel(bounds.x + x, bounds.y + y);
                             }
