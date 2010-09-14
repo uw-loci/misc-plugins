@@ -11,7 +11,7 @@
   </parent>
 
   <groupId>loci</groupId>
-  <artifactId>misc-plugins</artifactId>
+  <artifactId>misc_plugins</artifactId>
   <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
   <name>Miscellaneous ImageJ plugins</name>
@@ -22,6 +22,7 @@
   <licenses>
     <license>
       <name>BSD</name>
+      <url>http://dev.loci.wisc.edu/svn/java/trunk/projects/misc-plugins/LICENSE.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
