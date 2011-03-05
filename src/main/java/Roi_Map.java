@@ -62,7 +62,8 @@ public class Roi_Map implements PlugInFilter {
     ImagePlus m_imp;
     ColorModel m_colorModel;
     
-    public int setup(String arg, ImagePlus imp) {
+    @Override
+		public int setup(String arg, ImagePlus imp) {
         if (arg.equals("about")) {
             showAbout();
             return DONE;
@@ -75,7 +76,8 @@ public class Roi_Map implements PlugInFilter {
        IJ.showMessage("Creates image showing ROI regions.", "Roi Map");
     }
     
-    public void run(ImageProcessor ip) {
+    @Override
+		public void run(ImageProcessor ip) {
         // get list of current ROIs
         Roi[] rois = {};
         RoiManager manager = RoiManager.getInstance();

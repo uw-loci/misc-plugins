@@ -60,11 +60,13 @@ public class Export_As_Text implements PlugInFilter {
     private ImagePlus imp;
     private Roi[] m_rois = {};
 
+    @Override
     public int setup(String arg, ImagePlus imp) {
         this.imp = imp;
         return DOES_ALL;
     }
 
+    @Override
     public void run(ImageProcessor ip) {
         boolean floatType = ip instanceof FloatProcessor;
 
@@ -88,9 +90,11 @@ public class Export_As_Text implements PlugInFilter {
         FileWriter fw = null;
         try {
             fw = new FileWriter(m_file);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             IJ.log("exception opening file " + m_file);
             IJ.handleException(e);
+            return;
         }
 
         //StringBuffer sb = new StringBuffer();
