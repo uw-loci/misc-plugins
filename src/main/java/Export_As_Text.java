@@ -49,8 +49,8 @@ import java.util.prefs.*;
  * TODO
  *
  * <dl><dt><b>Source code:</b></dt>
- * <dd><a href="http://dev.loci.wisc.edu/trac/java/browser/trunk/projects/misc-plugins/src/main/java/Export_As_Text.java">Trac</a>,
- * <a href="http://dev.loci.wisc.edu/svn/java/trunk/projects/misc-plugins/src/main/java/Export_As_Text.java">SVN</a></dd></dl>
+ * <dd><a href="http://dev.loci.wisc.edu/trac/software/browser/trunk/projects/misc-plugins/src/main/java/Export_As_Text.java">Trac</a>,
+ * <a href="http://dev.loci.wisc.edu/svn/software/trunk/projects/misc-plugins/src/main/java/Export_As_Text.java">SVN</a></dd></dl>
  *
  * @author Aivar Grislis grislis at wisc.edu
  */
