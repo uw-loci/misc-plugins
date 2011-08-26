@@ -1,5 +1,5 @@
 //
-// Roi_Map.java
+// RoiMap.java
 //
 
 /*
@@ -32,6 +32,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
 
+package loci.plugins;
+
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Roi;
@@ -50,12 +52,12 @@ import java.awt.image.IndexColorModel;
  * TODO
  *
  * <dl><dt><b>Source code:</b></dt>
- * <dd><a href="http://dev.loci.wisc.edu/trac/software/browser/trunk/projects/misc-plugins/src/main/java/Roi_Map.java">Trac</a>,
- * <a href="http://dev.loci.wisc.edu/svn/software/trunk/projects/misc-plugins/src/main/java/Roi_Map.java">SVN</a></dd></dl>
+ * <dd><a href="http://dev.loci.wisc.edu/trac/software/browser/trunk/projects/misc-plugins/src/main/java/loci/plugins/RoiMap.java">Trac</a>,
+ * <a href="http://dev.loci.wisc.edu/svn/software/trunk/projects/misc-plugins/src/main/java/loci/plugins/RoiMap.java">SVN</a></dd></dl>
  *
- * @author Aivar Grislis grislis at wisc.edu
+ * @author Aivar Grislis
  */
-public class Roi_Map implements PlugInFilter {
+public class RoiMap implements PlugInFilter {
     static final int MAX_8_BIT = 255;
     static final int MAX_16_BIT = 65535;
     static final String OUT_TITLE = "Roi Map";

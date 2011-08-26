@@ -1,5 +1,5 @@
 //
-// Export_As_Text.java
+// ExportAsText.java
 //
 
 /*
@@ -32,6 +32,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
 
+package loci.plugins;
+
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.GenericDialog;
@@ -49,12 +51,12 @@ import java.util.prefs.*;
  * TODO
  *
  * <dl><dt><b>Source code:</b></dt>
- * <dd><a href="http://dev.loci.wisc.edu/trac/software/browser/trunk/projects/misc-plugins/src/main/java/Export_As_Text.java">Trac</a>,
- * <a href="http://dev.loci.wisc.edu/svn/software/trunk/projects/misc-plugins/src/main/java/Export_As_Text.java">SVN</a></dd></dl>
+ * <dd><a href="http://dev.loci.wisc.edu/trac/software/browser/trunk/projects/misc-plugins/src/main/java/loci/plugins/ExportAsText.java">Trac</a>,
+ * <a href="http://dev.loci.wisc.edu/svn/software/trunk/projects/misc-plugins/src/main/java/loci/plugins/ExportAsText.java">SVN</a></dd></dl>
  *
- * @author Aivar Grislis grislis at wisc.edu
+ * @author Aivar Grislis
  */
-public class Export_As_Text implements PlugInFilter {
+public class ExportAsText implements PlugInFilter {
     private static final String FILE_KEY = "export_as_text_file";
     private String m_file;
     private ImagePlus imp;
