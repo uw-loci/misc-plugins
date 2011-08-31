@@ -350,7 +350,7 @@ public class StitchOmeTiff implements PlugIn {
 	private static File writeTileFile(final File dir, final IMetadata meta,
 		final double[] scaleFactors) throws IOException
 	{
-		// create temp file for tile configuration
+		// create tile configuration file
 		final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'-'HHmmss");
 		final Date now = Calendar.getInstance().getTime();
 		final File tileFile =
