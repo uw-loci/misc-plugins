@@ -42,8 +42,11 @@ import ij.plugin.PlugIn;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -108,6 +111,7 @@ public class StitchOmeTiff implements PlugIn {
 	private double overlap = 20.0;
 	private double threshold = 20.0;
 	private boolean invert = true;
+	private boolean stitch = true;
 	private boolean computeOverlap = true;
 	private FusionMethod method = FusionMethod.LINEAR_BLENDING;
 	private double fusion = 1.5;
@@ -126,15 +130,14 @@ public class StitchOmeTiff implements PlugIn {
 		if (!success) return;
 
 		final String tileConfigPath = createTileConfiguration(file);
-		if (tileConfigPath == null) {
-			IJ.showStatus("");
-			return;
+		IJ.showStatus("");
+		if (tileConfigPath == null) return;
+
+		if (stitch) {
+			IJ.showStatus("Performing stitching...");
+			executeStitching(tileConfigPath);
+			IJ.showStatus("Stitching complete.");
 		}
-
-		IJ.showStatus("Performing stitching...");
-		executeStitching(tileConfigPath);
-
-		IJ.showStatus("Stitching complete.");
 	}
 
 	// -- Helper methods --
@@ -159,11 +162,17 @@ public class StitchOmeTiff implements PlugIn {
 	/** Prompts the user for plugin parameter values. */
 	private boolean chooseOptions() {
 		final GenericDialog gd = new GenericDialog("Options");
+		gd.addMessage("Tile layout parameters:");
 		gd.addNumericField("Overlap (%)", overlap, 0);
 		gd.addNumericField("Stage_unit_threshold", threshold, 2);
 		gd.addCheckbox("Invert_X_coordinates (hack)", invert);
-		gd.addCheckbox("compute_overlap (otherwise use the coordinates as-is)",
-			computeOverlap);
+		gd.addCheckbox("Perform_stitching now", stitch);
+		// NB: For now, commented out ability to disable overlap computation,
+		// because ImageJ is not passing the flag to the stitching plugin properly.
+		// So regardless of whether the box is checked, the overlap gets computed.
+//		gd.addCheckbox("compute_overlap (otherwise use the coordinates as-is)",
+//			computeOverlap);
+		gd.addMessage("Stitching parameters:");
 		gd.addChoice("Fusion_Method", FusionMethod.labels(),
 			FusionMethod.LINEAR_BLENDING.toString());
 		gd.addNumericField("Fusion alpha", fusion, 2);
@@ -175,7 +184,8 @@ public class StitchOmeTiff implements PlugIn {
 		overlap = gd.getNextNumber();
 		threshold = gd.getNextNumber();
 		invert = gd.getNextBoolean();
-		computeOverlap = gd.getNextBoolean();
+		stitch = gd.getNextBoolean();
+//		computeOverlap = gd.getNextBoolean();
 		method = FusionMethod.get(gd.getNextChoice());
 		fusion = gd.getNextNumber();
 		regression = gd.getNextNumber();
@@ -194,8 +204,8 @@ public class StitchOmeTiff implements PlugIn {
 			final IMetadata meta = parseMetadata(dataFile);
 
 			IJ.showStatus("Generating tile configuration file...");
-			final double[] scaleFactors = computeScale(meta, overlap, threshold,
-				invert);
+			final double[] scaleFactors =
+				computeScale(meta, overlap, threshold, invert);
 			final File tileFile =
 				writeTileFile(dataFile.getParentFile(), meta, scaleFactors);
 			IJ.log("Wrote tile configuration:");
@@ -215,7 +225,7 @@ public class StitchOmeTiff implements PlugIn {
 
 	/** Executes the stitching plugin using the given tile configuration. */
 	private void executeStitching(final String tileConfigPath) {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append("layout=[" + tileConfigPath + "]");
 		if (computeOverlap) sb.append(" compute_overlap");
 		// NB: Hard-coded the channels for now.
@@ -330,7 +340,10 @@ public class StitchOmeTiff implements PlugIn {
 	/**
 	 * Writes the tile configuration to disk.
 	 * 
+	 * @param dir The directory where the data files are.
 	 * @param meta Metadata from which to extract the tile configuration.
+	 * @param scaleFactors The scale factors to use when converting from stage
+	 *          coordinates to pixels.
 	 * @return The full path to the file where tile configuration was written.
 	 * @throws IOException If something goes wrong writing the file.
 	 */
@@ -338,8 +351,10 @@ public class StitchOmeTiff implements PlugIn {
 		final double[] scaleFactors) throws IOException
 	{
 		// create temp file for tile configuration
-		final File tileFile = File.createTempFile("TileConfiguration-", ".txt");
-		tileFile.deleteOnExit();
+		final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'-'HHmmss");
+		final Date now = Calendar.getInstance().getTime();
+		final File tileFile =
+			new File(dir, "TileConfiguration-" + sdf.format(now) + ".txt");
 		final PrintWriter out = new PrintWriter(tileFile);
 
 		// write tile configuration
@@ -401,7 +416,7 @@ public class StitchOmeTiff implements PlugIn {
 		out.println(sb.toString());
 	}
 
-	private static boolean hasZ(IMetadata meta) {
+	private static boolean hasZ(final IMetadata meta) {
 		return meta.getPixelsSizeZ(0).getValue() > 1;
 	}
 
