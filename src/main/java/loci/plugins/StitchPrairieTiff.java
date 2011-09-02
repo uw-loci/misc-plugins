@@ -40,9 +40,7 @@ import ij.io.OpenDialog;
 import ij.plugin.PlugIn;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -57,7 +55,6 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -328,9 +325,11 @@ public class StitchPrairieTiff implements PlugIn {
 
 		private String filename;
 		private double x, y, z;
+		private double xMicrons, yMicrons;
 
 		PrairieHandler(final List<Pt> coords) {
 			this.coords = coords;
+			clearState();
 		}
 
 		@Override
@@ -352,6 +351,12 @@ public class StitchPrairieTiff implements PlugIn {
 				else if (key.equals("positionCurrent_ZAxis")) {
 					z = Double.parseDouble(value);
 				}
+				else if (key.equals("micronsPerPixel_XAxis")) {
+					xMicrons = Double.parseDouble(value);
+				}
+				else if (key.equals("micronsPerPixel_YAxis")) {
+					yMicrons = Double.parseDouble(value);
+				}
 			}
 		}
 
@@ -362,12 +367,20 @@ public class StitchPrairieTiff implements PlugIn {
 			if (qName.equals("Frame")) {
 				final Pt pt = new Pt();
 				pt.filename = filename;
-				pt.x = x;
-				pt.y = y;
+				pt.x = x / xMicrons;
+				pt.y = y / yMicrons;
 				pt.z = z;
 				coords.add(pt);
+				clearState();
 			}
 		}
+
+		private void clearState() {
+			filename = null;
+			x = y = z = Double.NaN;
+			xMicrons = yMicrons = 1;
+		}
+
 	}
 
 }
