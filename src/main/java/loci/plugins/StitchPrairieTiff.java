@@ -194,17 +194,21 @@ public class StitchPrairieTiff implements PlugIn {
 	}
 
 	/** Ensures coordinates begin at (0, 0). */
-	private void normalizeCoords(List<Pt> coords) {
+	private void normalizeCoords(final List<Pt> coords) {
 		// find minimum coordinates
-		double minX = Double.POSITIVE_INFINITY, minY = Double.POSITIVE_INFINITY;
-		for (Pt pt : coords) {
+		double minX = Double.POSITIVE_INFINITY;
+		double minY = Double.POSITIVE_INFINITY;
+		double minZ = Double.POSITIVE_INFINITY;
+		for (final Pt pt : coords) {
 			if (pt.x < minX) minX = pt.x;
 			if (pt.y < minY) minY = pt.y;
+			if (pt.z < minZ) minZ = pt.z;
 		}
-		// normalize coordinates so minimum is (0, 0)
-		for (Pt pt : coords) {
+		// normalize coordinates so minimum is (0, 0, 0)
+		for (final Pt pt : coords) {
 			pt.x -= minX;
 			pt.y -= minY;
+			pt.z -= minZ;
 		}
 	}
 
