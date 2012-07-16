@@ -107,7 +107,10 @@ public class VisualizeTiles implements PlugIn {
 		final List<Pt> coords = readCoords(file);
 
 		IJ.showStatus("Reading tile dimensions");
-		final Dimension tileDim = readImageDimensions(coords.get(0).filename);
+		final String filename = coords.get(0).filename;
+		final String path =
+			new File(file.getParentFile(), filename).getAbsolutePath();
+		final Dimension tileDim = readImageDimensions(path);
 
 		IJ.showStatus("Calculating");
 		final Pt min = getMinPoint(coords), max = getMaxPoint(coords);
