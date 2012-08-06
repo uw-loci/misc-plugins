@@ -130,6 +130,10 @@ public class VisualizeTiles implements PlugIn {
 	}
 
 	private List<Pt> readCoords(final File file) throws IOException {
+		if (!file.getName().startsWith("TileConfiguration")) {
+			IJ.log("WARNING: File '" + file.getPath() +
+				"' may not be a tile configuration file.");
+		}
 		final BufferedReader in = new BufferedReader(new FileReader(file));
 		final ArrayList<Pt> coords = new ArrayList<Pt>();
 		while (true) {
