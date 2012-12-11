@@ -45,6 +45,7 @@ import ij.process.ImageProcessor;
 import ij.process.LUT;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Creates a substack of a hyperstack.
@@ -103,8 +104,8 @@ public class SubHyperstackMaker implements PlugIn {
 	}
 
 	public static ImagePlus makeSubhyperstack(final ImagePlus input,
-		final ArrayList<Integer> cList, final ArrayList<Integer> zList,
-		final ArrayList<Integer> tList)
+		final List<Integer> cList, final List<Integer> zList,
+		final List<Integer> tList)
 	{
 		// validate inputs
 		if (cList.size() == 0) {
