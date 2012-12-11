@@ -36,7 +36,6 @@ package loci.plugins;
 
 import ij.CompositeImage;
 import ij.IJ;
-import ij.ImageJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.WindowManager;
@@ -57,7 +56,7 @@ public class SubHyperstackMaker implements PlugIn {
 	@Override
 	public void run(final String arg) {
 		// verify input image is appropriate
-		final ImagePlus input = IJ.getImage();
+		final ImagePlus input = WindowManager.getCurrentImage();
 		if (input == null) {
 			IJ.showMessage("No image open.");
 			return;
