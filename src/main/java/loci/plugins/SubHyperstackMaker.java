@@ -240,10 +240,4 @@ public class SubHyperstackMaker implements PlugIn {
 		return list;
 	}
 
-	public static void main(final String[] args) {
-		new ImageJ();
-		IJ.run("Organ of Corti (2.8M, 4D stack)");
-		IJ.runPlugIn(SubHyperstackMaker.class.getName(), "");
-	}
-
 }
