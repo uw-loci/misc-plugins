@@ -8,7 +8,7 @@
   <parent>
     <groupId>loci</groupId>
     <artifactId>pom-loci</artifactId>
-    <version>1.0</version>
+    <version>1.5</version>
   </parent>
 
   <artifactId>misc_plugins</artifactId>
@@ -17,14 +17,6 @@
   <name>Miscellaneous ImageJ plugins</name>
   <description>Various plugins for ImageJ.</description>
   <inceptionYear>2010</inceptionYear>
-
-  <licenses>
-    <license>
-      <name>BSD</name>
-      <url>http://dev.loci.wisc.edu/svn/software/trunk/projects/misc-plugins/LICENSE.txt</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
 
   <dependencies>
     <dependency>
