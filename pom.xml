@@ -46,6 +46,19 @@
 
   <developers>
     <developer>
+      <id>curtis</id>
+      <name>Curtis Rueden</name>
+      <email>ctrueden@wisc.edu</email>
+      <url>http://loci.wisc.edu/people/curtis-rueden</url>
+      <organization>UW-Madison LOCI</organization>
+      <organizationUrl>http://loci.wisc.edu/</organizationUrl>
+      <roles>
+        <role>architect</role>
+        <role>developer</role>
+      </roles>
+      <timezone>-6</timezone>
+    </developer>
+    <developer>
       <id>aivar</id>
       <name>Aivar Grislis</name>
       <email>grislis@wisc.edu</email>
@@ -56,26 +69,7 @@
         <role>developer</role>
       </roles>
       <timezone>-6</timezone>
-      <properties>
-        <picUrl>http://loci.wisc.edu/files/loci/images/people/Aivar.jpg</picUrl>
-      </properties>
     </developer>
-		<developer>
-			<id>curtis</id>
-			<name>Curtis Rueden</name>
-			<email>ctrueden@wisc.edu</email>
-			<url>http://loci.wisc.edu/people/curtis-rueden</url>
-			<organization>UW-Madison LOCI</organization>
-			<organizationUrl>http://loci.wisc.edu/</organizationUrl>
-			<roles>
-				<role>architect</role>
-				<role>developer</role>
-			</roles>
-			<timezone>-6</timezone>
-			<properties>
-				<picUrl>http://loci.wisc.edu/files/loci/images/people/curtis-2010.jpg</picUrl>
-			</properties>
-		</developer>
   </developers>
 
   <!-- NB: for project parent, in case of partial checkout -->
