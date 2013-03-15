@@ -20,20 +20,22 @@
  */
 
 /*
-*	Intensity Macro for ImageJ - customized for Ogle Group 
-*	Author: Jimmy Fong (fong@wisc.edu)
-*	Modified by: Jayne Squirrell (jsquirre@wisc.edu)
-*	Purpose:  Performs a background subtraction of intensity 
-*		in a ROI selected from a Brightfield image.
-*		Calculates the background-subtracted total 
-*		intensity, and intensity per brightfield area.
-*		Also uses a user selected ROI from the Intensity image.
-*		Calculates the background-subtracted total intensity, 
-*		and intensity per fluorescent area.
-*		Also saves the fluorescent intensity images after background subtraction over 
-*		both the BF area and the FL area.
-*/		
-
+ * Intensity Macro for ImageJ - customized for Ogle Group
+ *
+ * Author: Jimmy Fong (fong@wisc.edu)
+ * Modified by: Jayne Squirrell (jsquirre@wisc.edu)
+ *
+ * Purpose:
+ * - Performs a background subtraction of intensity in a ROI
+ *   selected from a Brightfield image.
+ * - Calculates the background-subtracted total intensity, and
+ *   intensity per brightfield area.
+ * - Also uses a user selected ROI from the Intensity image.
+ * - Calculates the background-subtracted total intensity, and intensity
+ *   per fluorescent area.
+ * - Also saves the fluorescent intensity images after background
+ *   subtraction over both the BF area and the FL area.
+ */
 
 //Prompt for Brightfield Image
 Dialog.create("Please Select Brightfield Image");
@@ -110,8 +112,8 @@ if(countThresh == 0)
 tailCounts = 0;
 firstThrough = 1;
 for (i = counts.length - 1; i != 0; i --){
-	tailCounts += counts[i];  
-	//print("counts at " + i + "is " + counts[i]); 
+	tailCounts += counts[i];
+	//print("counts at " + i + "is " + counts[i]);
 	//print("tailCounts is" + tailCounts);
 	if((tailCounts >= countThresh)&& (firstThrough == 1) ){
 		valueThreshold = i;
@@ -201,7 +203,6 @@ saveAs("tiff", currentdirectory + "/bgndsub_bfarea_" + intImageName);
 selectWindow(dupIntImage);
 saveAs("tiff", currentdirectory + "/bgndsub_flarea_" + dupIntImage);
 
-
 function sumArray(arr){
 	sum =0;
 	for (i=0;i<arr.length -1; i++){
@@ -209,10 +210,3 @@ function sumArray(arr){
 	}
 	return sum;
 }
-
-
-
-
-
-
-
