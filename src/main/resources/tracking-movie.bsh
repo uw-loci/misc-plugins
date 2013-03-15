@@ -1,0 +1,92 @@
+//
+// tracking-movie.bsh
+//
+
+// This script creates an animation from ROIs added to the ROI manager.
+// It uses the associated image plane of each ROI, adjusted spatially
+// such that the first (X, Y) coordinate of each ROI occupies the same
+// location, as a "poor man's" registration technique. Each plane is
+// then assembled into the final movie.
+
+// To use, open your hyperstack and proceed to mark points using the
+// point tool. Add each point to the ROI Manager by pressing T. Once you
+// have marked all desired points, run the script to generate the movie.
+
+// Authors: Curtis Rueden & Joe Szulczewski
+
+// change this to your liking; it will be used to label each movie frame
+labelPrefix = "Frame";
+
+// get the currently active image
+imp = IJ.getImage();
+
+// get the image dimensions
+xCount = imp.getWidth();
+yCount = imp.getHeight();
+cCount = imp.getNChannels();
+
+// get the list of ROIs from the ROI manager
+rois = RoiManager.getInstance().getRoisAsArray();
+
+// search all ROIs for the maximal X and Y coordinates
+// these coordinates will be used as a canvas offset later
+xMin = xCount;
+yMin = yCount;
+xMax = yMax = 0;
+for (roi : rois) {
+	// query the ROI's (X, Y) coordinates
+	bounds = roi.getBounds();
+	if (bounds.x < xMin) xMin = bounds.x;
+	if (bounds.y < yMin) yMin = bounds.y;
+	if (bounds.x > xMax) xMax = bounds.x;
+	if (bounds.y > yMax) yMax = bounds.y;
+}
+
+// create an empty output movie
+movie = new Duplicator().run(imp, 1, 1, 1, 1, 1, 1); // preserve metadata
+movie.setTitle(labelPrefix);
+outputWidth = xCount + xMax - xMin;
+outputHeight = yCount + yMax - yMin;
+movieStack = new ImageStack(outputWidth, outputHeight);
+
+// loop over the ROIs: one movie frame per ROI
+frameIndex = 1;
+for (roi : rois) {
+	// make sure we know the (X, Y, Z, T) coordinates of this particular ROI
+	bounds = roi.getBounds();
+	z = roi.getZPosition();
+	t = roi.getTPosition();
+
+	// duplicate the frame (at all channels) marked by this ROI
+	frame = new Duplicator().run(imp, 1, cCount, z, z, t, t);
+
+	// pad the frame to adjust for skew in X and/or Y (so that ROIs line up)
+	WindowManager.setTempCurrentImage(frame);
+	upperPadX = xCount + xMax - bounds.x;
+	upperPadY = yCount + yMax - bounds.y;
+	IJ.run("Canvas Size...",
+		"width=" + upperPadX + " height=" + upperPadY +
+		" position=Bottom-Right zero");
+	lowerPadX = upperPadX + bounds.x - xMin;
+	lowerPadY = upperPadY + bounds.y - yMin;
+	IJ.run("Canvas Size...",
+		"width=" + lowerPadX + " height=" + lowerPadY +
+		" position=Top-Left zero");
+
+	// add the frame to the output movie
+	sliceLabel = labelPrefix + " " + frameIndex++;
+	for (c = 1; c <= cCount; c++) {
+		slice = frame.getStack().getProcessor(c);
+		movieStack.addSlice(sliceLabel, slice);
+	}
+}
+
+// display the output movie
+movie.setStack(movieStack, cCount, 1, rois.length);
+if (imp instanceof CompositeImage) {
+	// preserve color tables and composite mode
+	compImp = (CompositeImage) imp;
+	movie = new CompositeImage(movie, compImp.getMode());
+	movie.setLuts(compImp.getLuts());
+}
+movie.show();
