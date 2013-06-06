@@ -8,7 +8,7 @@
   <parent>
     <groupId>loci</groupId>
     <artifactId>pom-loci</artifactId>
-    <version>1.5</version>
+    <version>1.6</version>
   </parent>
 
   <artifactId>misc_plugins</artifactId>
@@ -20,19 +20,19 @@
 
   <dependencies>
     <dependency>
+      <groupId>${bio-formats.groupId}</groupId>
+      <artifactId>loci-common</artifactId>
+      <version>${bio-formats.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${bio-formats.groupId}</groupId>
+      <artifactId>scifio</artifactId>
+      <version>${bio-formats.version}</version>
+    </dependency>
+    <dependency>
       <groupId>${imagej.groupId}</groupId>
       <artifactId>ij</artifactId>
       <version>${imagej1.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>loci</groupId>
-      <artifactId>loci-legacy</artifactId>
-      <version>4.5-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>loci</groupId>
-      <artifactId>scifio</artifactId>
-      <version>4.5-SNAPSHOT</version>
     </dependency>
   </dependencies>
 
