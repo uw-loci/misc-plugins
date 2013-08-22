@@ -211,49 +211,4 @@ public class VisualizeTiles implements PlugIn {
 		rm.runCommand("Show All");
 	}
 
-	// -- Helper classes --
-
-	static class Pt {
-
-		int i, p;
-		int w, h;
-		int theC, theZ, theT;
-		double x, y, z;
-		int t;
-
-		public Pt() {}
-
-		public Pt(final int i, final int w, final int h, final Double x,
-			final Double y, final Double z)
-		{
-			this(i, -1, w, h, null, null, null, x, y, z, null);
-		}
-
-		public Pt(final int i, final int p, final int w, final int h,
-			final Integer theC, final Integer theZ, final Integer theT,
-			final Double x, final Double y, final Double z, final Integer t)
-		{
-			this.i = i;
-			this.p = p;
-			this.theC = theC == null ? -1 : theC;
-			this.theZ = theZ == null ? -1 : theZ;
-			this.theT = theT == null ? -1 : theT;
-			this.w = w;
-			this.h = h;
-			this.x = x == null ? Double.NaN : x;
-			this.y = y == null ? Double.NaN : y;
-			this.z = z == null ? Double.NaN : z;
-			this.t = t == null ? -1 : t;
-		}
-
-		public String name() {
-			final StringBuilder sb = new StringBuilder("image=" + i);
-			if (p >= 0) sb.append("; tile=" + p);
-			if (theC >= 0) sb.append("; C=" + theC);
-			if (theZ >= 0) sb.append("; Z=" + theZ);
-			if (theT >= 0) sb.append("; T=" + theT);
-			return sb.toString();
-		}
-	}
-
 }
