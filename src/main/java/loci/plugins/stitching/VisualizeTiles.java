@@ -32,7 +32,9 @@ import java.io.File;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
@@ -190,6 +192,9 @@ public class VisualizeTiles implements PlugIn {
 		final DisplayImplJ3D display = new DisplayImplJ3D(title);
 		final int tileCount = coords.size();
 
+		// map of random colors per image
+		final HashMap<Integer, Float> randomColors = new HashMap<Integer, Float>();
+
 		// convert tile coordinates into tile domain sets and range samples
 		final SampledSet[] sets = new SampledSet[tileCount];
 		final float[][] samples = new float[2][4 * tileCount];
@@ -201,10 +206,11 @@ public class VisualizeTiles implements PlugIn {
 			final float xMax = (float) (pt.x + pt.w);
 			final float yMax = (float) (pt.y + pt.h);
 			sets[i] = new Linear2DSet(xyType, xMin, xMax, 2, yMin, yMax, 2);
+			final float color = color(pt.i, randomColors);
 			for (int j=0; j<4; j++) {
 				final int index = 4 * i + j;
 				samples[0][index] = (float) pt.z;
-				samples[0][index] = pt.p;
+				samples[1][index] = color;
 			}
 		}
 
@@ -220,7 +226,6 @@ public class VisualizeTiles implements PlugIn {
 
 		// add color display mapping
 		final ScalarMap colorMap = new ScalarMap(indexType, Display.RGB);
-		colorMap.setRange(0, tileCount - 1);
 		display.addMap(colorMap);
 
 		// add tiles field to display
@@ -233,6 +238,16 @@ public class VisualizeTiles implements PlugIn {
 		IJ.showProgress(1);
 
 		return display;
+	}
+
+	private float color(final int id, final HashMap<Integer, Float> colors) {
+		Float color = colors.get(id);
+		if (color == null) {
+			// new ID; generate a random color
+			color = (float) Math.random();
+			colors.put(id, color);
+		}
+		return color;
 	}
 
 	private void showDisplay(final DisplayImpl display) {
