@@ -42,11 +42,11 @@ import loci.formats.MetadataTools;
 import loci.formats.meta.IMetadata;
 
 /**
- * A plugin to visualize the tile layout of a multi-tile dataset.
+ * A plugin to create ROIs matching the tile layout of a multi-tile dataset.
  * 
  * @author Curtis Rueden
  */
-public class VisualizeTiles implements PlugIn {
+public class TilesToROIs implements PlugIn {
 
 	// -- PlugIn methods --
 
@@ -68,7 +68,7 @@ public class VisualizeTiles implements PlugIn {
 
 	public static void main(final String... args) {
 		new ImageJ();
-		IJ.runPlugIn(VisualizeTiles.class.getName(), "");
+		IJ.runPlugIn(TilesToROIs.class.getName(), "");
 	}
 
 	// -- Helper methods --
