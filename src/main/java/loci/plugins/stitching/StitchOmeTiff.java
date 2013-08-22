@@ -19,7 +19,7 @@
  * #L%
  */
 
-package loci.plugins;
+package loci.plugins.stitching;
 
 import ij.IJ;
 import ij.gui.GenericDialog;
