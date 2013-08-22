@@ -29,21 +29,21 @@ package loci.plugins.stitching;
 public class Pt {
 
 	public int i, p;
-	public int w, h;
+	public double w, h;
 	public int theC, theZ, theT;
 	public double x, y, z;
 	public int t;
 
 	public Pt() {}
 
-	public Pt(final int i, final int w, final int h, final Double x,
+	public Pt(final int i, final double w, final double h, final Double x,
 		final Double y, final Double z)
 	{
-		this(i, -1, w, h, null, null, null, x, y, z, null);
+		this(i, -1, null, null, null, w, h, x, y, z, null);
 	}
 
-	public Pt(final int i, final int p, final int w, final int h,
-		final Integer theC, final Integer theZ, final Integer theT, final Double x,
+	public Pt(final int i, final int p, final Integer theC, final Integer theZ,
+		final Integer theT, final double w, final double h, final Double x,
 		final Double y, final Double z, final Integer t)
 	{
 		this.i = i;
