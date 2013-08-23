@@ -48,6 +48,7 @@ import loci.formats.ImageReader;
 import loci.formats.MetadataTools;
 import loci.formats.meta.IMetadata;
 import ome.xml.model.primitives.PositiveFloat;
+import visad.ConstantMap;
 import visad.DataReferenceImpl;
 import visad.Display;
 import visad.DisplayImpl;
@@ -56,9 +57,7 @@ import visad.FunctionType;
 import visad.Linear2DSet;
 import visad.RealTupleType;
 import visad.RealType;
-import visad.SampledSet;
 import visad.ScalarMap;
-import visad.UnionSet;
 import visad.VisADException;
 import visad.java3d.DisplayImplJ3D;
 
@@ -70,8 +69,8 @@ import visad.java3d.DisplayImplJ3D;
 public class VisualizeTiles implements PlugIn {
 
 	private RealType xType, yType;
-	private RealType zType, indexType;
-	private RealTupleType xyType, zIndexType;
+	private RealType indexType;
+	private RealTupleType xyType;
 	private FunctionType tileType;
 
 	// -- Constructor --
@@ -79,13 +78,10 @@ public class VisualizeTiles implements PlugIn {
 	public VisualizeTiles() throws VisADException {
 		xType = RealType.getRealType("x");
 		yType = RealType.getRealType("y");
-		zType = RealType.getRealType("z");
 		indexType = RealType.getRealType("index");
 
 		xyType = new RealTupleType(xType, yType);
-		zIndexType = new RealTupleType(zType, indexType);
-
-		tileType = new FunctionType(xyType, zIndexType);
+		tileType = new FunctionType(xyType, indexType);
 	}
 
 	// -- PlugIn methods --
@@ -146,12 +142,12 @@ public class VisualizeTiles implements PlugIn {
 		final List<Pt> coords = readCoords(meta);
 
 		IJ.showStatus("Reading data");
-		final FlatField tiles = createField(coords, loadTiles ? in : null);
+		final FlatField[] tiles = createFields(coords, loadTiles ? in : null);
 
 		in.close();
 
 		IJ.showStatus("Creating display");
-		final DisplayImpl display = createDisplay(file.getName(), tiles);
+		final DisplayImpl display = createDisplay(file.getName(), coords, tiles);
 		showDisplay(display);
 
 		IJ.showStatus("");
@@ -204,14 +200,15 @@ public class VisualizeTiles implements PlugIn {
 	}
 
 	/**
-	 * Creates a VisAD {@link FlatField} of all tiles unioned together.
+	 * Creates VisAD {@link FlatField} for each tile.
 	 * 
 	 * @param coords List of tile coordinates.
 	 * @param in Initialized {@link IFormatReader} from which to read tile
 	 *          thumbnails. If null, tiles will be rendered as 2x2 random colors.
 	 */
-	private FlatField createField(final List<Pt> coords, final IFormatReader in)
-		throws VisADException, RemoteException, FormatException, IOException
+	private FlatField[]
+		createFields(final List<Pt> coords, final IFormatReader in)
+			throws VisADException, RemoteException, FormatException, IOException
 	{
 		final int tileCount = coords.size();
 
@@ -219,72 +216,34 @@ public class VisualizeTiles implements PlugIn {
 		final HashMap<Integer, Float> randomColors =
 			in == null ? new HashMap<Integer, Float>() : null;
 
-		// compute total number of samples
-		int sampleCount = 0;
-		if (in == null) {
-			// 2x2 samples per tile
-			sampleCount = 4 * tileCount;
-		}
-		else {
-			// WxH samples per tile, where WxH is the thumbnail resolution
-			final int seriesCount = in.getSeriesCount();
-			for (int i = 0; i < seriesCount; i++) {
-				in.setSeries(i);
-				final int sizeX = in.getThumbSizeX();
-				final int sizeY = in.getThumbSizeY();
-				final int planeCount = in.getImageCount();
-				sampleCount += sizeX * sizeY * planeCount;
-			}
-		}
-
-		// compute minimum memory requirement
-		long mem = (2 * 4 * sampleCount);
-		final String unit;
-		if (in == null) {
-			mem /= 1024;
-			unit = "KB";
-		}
-		else {
-			mem /= 1024 * 1024;
-			unit = "MB";
-		}
-		IJ.log("Tile field will require " + mem + " " + unit + " of memory");
-
-		// convert tile coordinates into tile domain sets
-		IJ.showStatus("Laying out tiles");
-
-		final SampledSet[] sets = new SampledSet[tileCount];
+		final FlatField[] tiles = new FlatField[tileCount];
 		for (int i = 0; i < tileCount; i++) {
+			IJ.showStatus("Processing tile #" + (i + 1) + "/" + tileCount);
+			IJ.showProgress(i, tileCount);
 			final Pt pt = coords.get(i);
+
+			// convert tile coordinates into tile domain set
 			final float xMin = (float) pt.x;
 			final float yMin = (float) pt.y;
 			final float xMax = (float) (pt.x + pt.w);
 			final float yMax = (float) (pt.y + pt.h);
-
 			int xLen = 2, yLen = 2;
 			if (in != null) {
 				in.setSeries(pt.i);
 				xLen = in.getThumbSizeX();
 				yLen = in.getThumbSizeY();
 			}
+			final Linear2DSet tileSet =
+				new Linear2DSet(xyType, xMin, xMax, xLen, yMin, yMax, yLen);
 
-			sets[i] = new Linear2DSet(xyType, xMin, xMax, xLen, yMin, yMax, yLen);
-		}
-
-		// compute range samples for each tile
-		final float[][] samples = new float[2][sampleCount];
-		int sampleIndex = 0;
-		for (int i = 0; i < tileCount; i++) {
-			IJ.showStatus("Processing tile #" + (i + 1) + "/" + tileCount);
-			IJ.showProgress(i, tileCount);
-			final Pt pt = coords.get(i);
-
+			// compute range samples for the tile
+			final float[][] samples = new float[1][xLen * yLen];
+			int sampleIndex = 0;
 			if (in == null) {
 				// populate 2x2 tile with random color
 				final float color = color(pt.i, randomColors);
 				for (int j = 0; j < 4; j++) {
-					samples[0][sampleIndex] = (float) pt.z;
-					samples[1][sampleIndex] = color;
+					samples[0][sampleIndex] = color;
 					sampleIndex++;
 				}
 			}
@@ -302,44 +261,57 @@ public class VisualizeTiles implements PlugIn {
 				// iterate over array of primitives in a general way
 				for (int index=0; index<Array.getLength(array); index++) {
 					float value = ((Number) Array.get(array, index)).floatValue();
-					samples[0][sampleIndex] = (float) pt.z;
-					samples[1][sampleIndex] = value;
+					samples[0][sampleIndex] = value;
 					sampleIndex++;
 				}
 			}
-		}
 
-		// union all tiles together into a single field
-		final UnionSet tilesSet = new UnionSet(xyType, sets);
-		final FlatField tiles = new FlatField(tileType, tilesSet);
-		tiles.setSamples(samples);
+			tiles[i] = new FlatField(tileType, tileSet);
+			tiles[i].setSamples(samples);
+		}
 
 		IJ.showProgress(1);
 
 		return tiles;
 	}
 
-	private DisplayImpl createDisplay(final String title, final FlatField tiles)
-		throws VisADException, RemoteException
+	private DisplayImpl createDisplay(final String title, final List<Pt> coords,
+		final FlatField[] tiles) throws VisADException, RemoteException
 	{
 		final DisplayImplJ3D display = new DisplayImplJ3D(title);
 
 		// add spatial display mappings
 		display.addMap(new ScalarMap(xType, Display.XAxis));
 		display.addMap(new ScalarMap(yType, Display.YAxis));
-		display.addMap(new ScalarMap(zType, Display.ZAxis));
 
 		// add color display mapping
 		final ScalarMap colorMap = new ScalarMap(indexType, Display.RGB);
 		display.addMap(colorMap);
 
-		// add tiles field to display
-		final DataReferenceImpl ref = new DataReferenceImpl(title);
-		ref.setData(tiles);
-		display.addReference(ref);
+		double minZ = Double.POSITIVE_INFINITY, maxZ = Double.NEGATIVE_INFINITY;
+		for (final Pt pt : coords) {
+			if (pt.z < minZ) minZ = pt.z;
+			if (pt.z > maxZ) maxZ = pt.z;
+		}
+
+		// add tile fields to display
+		for (int t=0; t<tiles.length; t++) {
+			IJ.showStatus("Displaying tile #" + (t + 1) + "/" + tiles.length);
+			IJ.showProgress(t, tiles.length);
+			final Pt pt = coords.get(t);
+			final double normZ = // [-1, 1]
+				minZ == maxZ ? 0 : 2 * (pt.z - minZ) / (maxZ - minZ) - 1;
+			final DataReferenceImpl ref = new DataReferenceImpl(title + ":" + t);
+			ref.setData(tiles[t]);
+			display.addReference(ref, new ConstantMap[] {
+				new ConstantMap(normZ, Display.ZAxis)
+			});
+		}
 
 		display.getGraphicsModeControl().setScaleEnable(true);
 		display.getGraphicsModeControl().setTextureEnable(true);
+
+		IJ.showProgress(1);
 
 		return display;
 	}
