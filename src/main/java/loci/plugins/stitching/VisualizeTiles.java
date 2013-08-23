@@ -112,7 +112,7 @@ public class VisualizeTiles implements PlugIn {
 	// -- Main method --
 
 	public static void main(final String... args) {
-		new ImageJ();
+		new ImageJ().exitWhenQuitting(true);
 		IJ.runPlugIn(VisualizeTiles.class.getName(), "");
 	}
 
