@@ -345,6 +345,7 @@ public class VisualizeTiles implements PlugIn {
 		final JFrame frame = new JFrame(display.getName());
 		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		frame.addWindowListener(new WindowAdapter() {
+
 			@Override
 			public void windowClosing(final WindowEvent e) {
 				frame.dispose();
