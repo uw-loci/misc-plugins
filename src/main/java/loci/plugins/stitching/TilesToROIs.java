@@ -25,7 +25,6 @@ import ij.IJ;
 import ij.ImageJ;
 import ij.ImagePlus;
 import ij.gui.Roi;
-import ij.io.OpenDialog;
 import ij.plugin.PlugIn;
 import ij.plugin.frame.RoiManager;
 import ij.process.ByteProcessor;
@@ -33,12 +32,10 @@ import ij.process.ByteProcessor;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import loci.formats.FormatException;
-import loci.formats.ImageReader;
-import loci.formats.MetadataTools;
+import loci.formats.IFormatReader;
 import loci.formats.meta.IMetadata;
 
 /**
@@ -52,7 +49,7 @@ public class TilesToROIs implements PlugIn {
 
 	@Override
 	public void run(final String arg) {
-		final File file = chooseFile();
+		final File file = TileUtils.chooseFile();
 		if (file == null) return;
 
 		try {
@@ -67,34 +64,22 @@ public class TilesToROIs implements PlugIn {
 	// -- Main method --
 
 	public static void main(final String... args) {
-		new ImageJ();
+		new ImageJ().exitWhenQuitting(true);
 		IJ.runPlugIn(TilesToROIs.class.getName(), "");
 	}
 
 	// -- Helper methods --
 
-	/** Prompts the user to choose a file. */
-	private File chooseFile() {
-		final OpenDialog od = new OpenDialog("Choose a data file", "");
-		final String name = od.getFileName();
-		final String dir = od.getDirectory();
-		if (name == null || dir == null) {
-			// no file selected
-			return null;
-		}
-		final File file = new File(dir, name);
-		if (!file.exists()) {
-			IJ.error("No such file: " + file);
-			return null;
-		}
-		return file;
-	}
-
 	private ImagePlus vizTiles(final File file) throws IOException,
 		FormatException
 	{
+		IJ.showStatus("Initializing dataset");
+		final IFormatReader in = TileUtils.initializeReader(file);
+		final IMetadata meta = (IMetadata) in.getMetadataStore();
+		in.close();
+
 		IJ.showStatus("Reading tile coordinates");
-		final List<Pt> coords = readCoords(file);
+		final List<Pt> coords = TileUtils.readCoords(meta);
 
 		IJ.showStatus("Calculating");
 		final Pt min = getMinPoint(coords), max = getMaxPoint(coords);
@@ -113,45 +98,6 @@ public class TilesToROIs implements PlugIn {
 		IJ.showStatus("");
 
 		return imp;
-	}
-
-	private List<Pt> readCoords(final File file) throws FormatException,
-		IOException
-	{
-		final ImageReader in = new ImageReader();
-		final IMetadata omeMeta = MetadataTools.createOMEXMLMetadata();
-		in.setMetadataStore(omeMeta);
-		in.setId(file.getAbsolutePath());
-
-		final ArrayList<Pt> coords = new ArrayList<Pt>();
-		final int imageCount = omeMeta.getImageCount();
-		for (int i = 0; i < imageCount; i++) {
-			in.setSeries(i);
-			final int sizeX = in.getSizeX();
-			final int sizeY = in.getSizeY();
-			final int planeCount = omeMeta.getPlaneCount(i);
-			for (int p = 0; p < planeCount; p++) {
-				final Integer c = omeMeta.getPlaneTheC(i, p).getValue();
-				final Integer z = omeMeta.getPlaneTheZ(i, p).getValue();
-				final Integer t = omeMeta.getPlaneTheT(i, p).getValue();
-				final Double posX = omeMeta.getPlanePositionX(i, p);
-				final Double posY = omeMeta.getPlanePositionY(i, p);
-				final Double posZ = omeMeta.getPlanePositionZ(i, p);
-				coords.add(new Pt(i, p, c, z, t, sizeX, sizeY, posX, posY, posZ, t));
-			}
-			try {
-				final Double labelX = omeMeta.getStageLabelX(i);
-				final Double labelY = omeMeta.getStageLabelY(i);
-				final Double labelZ = omeMeta.getStageLabelZ(i);
-				coords.add(new Pt(i, sizeX, sizeY, labelX, labelY, labelZ));
-			}
-			catch (final NullPointerException exc) {
-				// HACK: Workaround for bug in loci:ome-xml:4.4.8.
-			}
-		}
-		in.close();
-
-		return coords;
 	}
 
 	private Pt getMinPoint(final List<Pt> coords) {
