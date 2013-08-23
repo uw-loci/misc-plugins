@@ -157,7 +157,6 @@ public class VisualizeTiles implements PlugIn {
 			final double calY = physY == null ? 1 : physY.getValue();
 			final double w = in.getSizeX() * calX;
 			final double h = in.getSizeY() * calY;
-			IJ.log("For image # " + i + ": tile dimension is " + w + " x " + h);//TEMP
 
 			final int planeCount = omeMeta.getPlaneCount(i);
 			for (int p = 0; p < planeCount; p++) {
