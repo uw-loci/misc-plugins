@@ -23,6 +23,7 @@ package loci.plugins.stitching;
 
 import ij.IJ;
 import ij.ImageJ;
+import ij.gui.GenericDialog;
 import ij.io.OpenDialog;
 import ij.plugin.PlugIn;
 
@@ -30,6 +31,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +40,9 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
+import loci.common.DataTools;
 import loci.formats.FormatException;
+import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.MetadataTools;
@@ -91,8 +95,14 @@ public class VisualizeTiles implements PlugIn {
 		final File file = chooseFile();
 		if (file == null) return;
 
+		final GenericDialog gd = new GenericDialog("Visualize Tiles");
+		gd.addCheckbox("Load_tiles", false);
+		gd.showDialog();
+		if (gd.wasCanceled()) return;
+		final boolean loadTiles = gd.getNextBoolean();
+
 		try {
-			vizTiles(file);
+			vizTiles(file, loadTiles);
 		}
 		catch (final Exception e) {
 			IJ.handleException(e);
@@ -125,8 +135,8 @@ public class VisualizeTiles implements PlugIn {
 		return file;
 	}
 
-	private void vizTiles(final File file) throws FormatException,
-		IOException, VisADException, RemoteException
+	private void vizTiles(final File file, final boolean loadTiles)
+		throws FormatException, IOException, VisADException, RemoteException
 	{
 		IJ.showStatus("Initializing dataset");
 		final IFormatReader in = initializeReader(file);
@@ -136,7 +146,7 @@ public class VisualizeTiles implements PlugIn {
 		final List<Pt> coords = readCoords(meta);
 
 		IJ.showStatus("Reading data");
-		final FlatField tiles = createField(coords);
+		final FlatField tiles = createField(coords, loadTiles ? in : null);
 
 		in.close();
 
@@ -197,14 +207,35 @@ public class VisualizeTiles implements PlugIn {
 	 * Creates a VisAD {@link FlatField} of all tiles unioned together.
 	 * 
 	 * @param coords List of tile coordinates.
+	 * @param in Initialized {@link IFormatReader} from which to read tile
+	 *          thumbnails. If null, tiles will be rendered as 2x2 random colors.
 	 */
-	private FlatField createField(final List<Pt> coords)
-		throws VisADException, RemoteException
+	private FlatField createField(final List<Pt> coords, final IFormatReader in)
+		throws VisADException, RemoteException, FormatException, IOException
 	{
 		final int tileCount = coords.size();
 
-		// map of random colors per image
-		final HashMap<Integer, Float> randomColors = new HashMap<Integer, Float>();
+		// map of random colors per image (only used if not loading tiles)
+		final HashMap<Integer, Float> randomColors =
+			in == null ? new HashMap<Integer, Float>() : null;
+
+		// compute total number of samples
+		int sampleCount = 0;
+		if (in == null) {
+			// 2x2 samples per tile
+			sampleCount = 4 * tileCount;
+		}
+		else {
+			// WxH samples per tile, where WxH is the thumbnail resolution
+			final int seriesCount = in.getSeriesCount();
+			for (int i = 0; i < seriesCount; i++) {
+				in.setSeries(i);
+				final int sizeX = in.getThumbSizeX();
+				final int sizeY = in.getThumbSizeY();
+				final int planeCount = in.getImageCount();
+				sampleCount += sizeX * sizeY * planeCount;
+			}
+		}
 
 		// convert tile coordinates into tile domain sets
 		IJ.showStatus("Laying out tiles");
@@ -218,23 +249,50 @@ public class VisualizeTiles implements PlugIn {
 			final float yMax = (float) (pt.y + pt.h);
 
 			int xLen = 2, yLen = 2;
+			if (in != null) {
+				in.setSeries(pt.i);
+				xLen = in.getThumbSizeX();
+				yLen = in.getThumbSizeY();
+			}
+
 			sets[i] = new Linear2DSet(xyType, xMin, xMax, xLen, yMin, yMax, yLen);
 		}
 
 		// compute range samples for each tile
-		final float[][] samples = new float[2][4 * tileCount];
+		final float[][] samples = new float[2][sampleCount];
 		int sampleIndex = 0;
 		for (int i = 0; i < tileCount; i++) {
 			IJ.showStatus("Processing tile #" + (i + 1) + "/" + tileCount);
 			IJ.showProgress(i, tileCount);
 			final Pt pt = coords.get(i);
 
-			// populate 2x2 tile with random color
-			final float color = color(pt.i, randomColors);
-			for (int j = 0; j < 4; j++) {
-				samples[0][sampleIndex] = (float) pt.z;
-				samples[1][sampleIndex] = color;
-				sampleIndex++;
+			if (in == null) {
+				// populate 2x2 tile with random color
+				final float color = color(pt.i, randomColors);
+				for (int j = 0; j < 4; j++) {
+					samples[0][sampleIndex] = (float) pt.z;
+					samples[1][sampleIndex] = color;
+					sampleIndex++;
+				}
+			}
+			else {
+				// populate tile data at thumbnail resolution
+				in.setSeries(pt.i);
+				final int no = in.getIndex(pt.theZ, pt.theC, pt.theT);
+				byte[] bytes = in.openThumbBytes(no);
+				// convert array of bytes to array of appropriate primitives
+				final int pixelType = in.getPixelType();
+				final int bpp = FormatTools.getBytesPerPixel(pixelType);
+				final boolean fp = FormatTools.isFloatingPoint(pixelType);
+				final boolean little = in.isLittleEndian();
+				final Object array = DataTools.makeDataArray(bytes, bpp, fp, little);
+				// iterate over array of primitives in a general way
+				for (int index=0; index<Array.getLength(array); index++) {
+					float value = ((Number) Array.get(array, index)).floatValue();
+					samples[0][sampleIndex] = (float) pt.z;
+					samples[1][sampleIndex] = value;
+					sampleIndex++;
+				}
 			}
 		}
 
@@ -268,6 +326,7 @@ public class VisualizeTiles implements PlugIn {
 		display.addReference(ref);
 
 		display.getGraphicsModeControl().setScaleEnable(true);
+		display.getGraphicsModeControl().setTextureEnable(true);
 
 		return display;
 	}
