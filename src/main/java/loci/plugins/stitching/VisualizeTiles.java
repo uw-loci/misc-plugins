@@ -39,6 +39,7 @@ import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
 import loci.formats.FormatException;
+import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.MetadataTools;
 import loci.formats.meta.IMetadata;
@@ -127,67 +128,79 @@ public class VisualizeTiles implements PlugIn {
 	private void vizTiles(final File file) throws FormatException,
 		IOException, VisADException, RemoteException
 	{
+		IJ.showStatus("Initializing dataset");
+		final IFormatReader in = initializeReader(file);
+		final IMetadata meta = (IMetadata) in.getMetadataStore();
+
 		IJ.showStatus("Reading tile coordinates");
-		final List<Pt> coords = readCoords(file);
+		final List<Pt> coords = readCoords(meta);
+
+		IJ.showStatus("Reading data");
+		final FlatField tiles = createField(coords);
+
+		in.close();
 
 		IJ.showStatus("Creating display");
-		final DisplayImpl display = createDisplay(file.getName(), coords);
+		final DisplayImpl display = createDisplay(file.getName(), tiles);
 		showDisplay(display);
 
 		IJ.showStatus("");
 	}
 
-	private List<Pt> readCoords(final File file) throws FormatException,
-		IOException
+	private IFormatReader initializeReader(final File file)
+		throws FormatException, IOException
 	{
 		final ImageReader in = new ImageReader();
 		final IMetadata omeMeta = MetadataTools.createOMEXMLMetadata();
 		in.setMetadataStore(omeMeta);
 		in.setId(file.getAbsolutePath());
+		return in;
+	}
 
+	private List<Pt> readCoords(final IMetadata meta) {
 		final ArrayList<Pt> coords = new ArrayList<Pt>();
-		final int imageCount = omeMeta.getImageCount();
+		final int imageCount = meta.getImageCount();
 		for (int i = 0; i < imageCount; i++) {
-			in.setSeries(i);
-
 			// compute width and height in calibrated units
-			final PositiveFloat physX = omeMeta.getPixelsPhysicalSizeX(i);
-			final PositiveFloat physY = omeMeta.getPixelsPhysicalSizeY(i);
+			final PositiveFloat physX = meta.getPixelsPhysicalSizeX(i);
+			final PositiveFloat physY = meta.getPixelsPhysicalSizeY(i);
 			final double calX = physX == null ? 1 : physX.getValue();
 			final double calY = physY == null ? 1 : physY.getValue();
-			final double w = in.getSizeX() * calX;
-			final double h = in.getSizeY() * calY;
+			final double w = meta.getPixelsSizeX(i).getValue() * calX;
+			final double h = meta.getPixelsSizeY(i).getValue() * calY;
 
-			final int planeCount = omeMeta.getPlaneCount(i);
+			final int planeCount = meta.getPlaneCount(i);
 			for (int p = 0; p < planeCount; p++) {
-				final Integer c = omeMeta.getPlaneTheC(i, p).getValue();
-				final Integer z = omeMeta.getPlaneTheZ(i, p).getValue();
-				final Integer t = omeMeta.getPlaneTheT(i, p).getValue();
-				final Double posX = omeMeta.getPlanePositionX(i, p);
-				final Double posY = omeMeta.getPlanePositionY(i, p);
-				final Double posZ = omeMeta.getPlanePositionZ(i, p);
-				coords.add(new Pt(i, p, c, z, t, w, h, posX, posY,
-					posZ, t));
+				final Integer c = meta.getPlaneTheC(i, p).getValue();
+				final Integer z = meta.getPlaneTheZ(i, p).getValue();
+				final Integer t = meta.getPlaneTheT(i, p).getValue();
+				final Double posX = meta.getPlanePositionX(i, p);
+				final Double posY = meta.getPlanePositionY(i, p);
+				final Double posZ = meta.getPlanePositionZ(i, p);
+				coords.add(new Pt(i, p, c, z, t, w, h, posX, posY, posZ, t));
 			}
 			try {
-				final Double labelX = omeMeta.getStageLabelX(i);
-				final Double labelY = omeMeta.getStageLabelY(i);
-				final Double labelZ = omeMeta.getStageLabelZ(i);
+				final Double labelX = meta.getStageLabelX(i);
+				final Double labelY = meta.getStageLabelY(i);
+				final Double labelZ = meta.getStageLabelZ(i);
 				coords.add(new Pt(i, w, h, labelX, labelY, labelZ));
 			}
 			catch (final NullPointerException exc) {
 				// HACK: Workaround for bug in loci:ome-xml:4.4.8.
 			}
 		}
-		in.close();
 
 		return coords;
 	}
 
-	private DisplayImpl createDisplay(final String title, final List<Pt> coords)
+	/**
+	 * Creates a VisAD {@link FlatField} of all tiles unioned together.
+	 * 
+	 * @param coords List of tile coordinates.
+	 */
+	private FlatField createField(final List<Pt> coords)
 		throws VisADException, RemoteException
 	{
-		final DisplayImplJ3D display = new DisplayImplJ3D(title);
 		final int tileCount = coords.size();
 
 		// map of random colors per image
@@ -217,6 +230,16 @@ public class VisualizeTiles implements PlugIn {
 		final FlatField tiles = new FlatField(tileType, tilesSet);
 		tiles.setSamples(samples);
 
+		IJ.showProgress(1);
+
+		return tiles;
+	}
+
+	private DisplayImpl createDisplay(final String title, final FlatField tiles)
+		throws VisADException, RemoteException
+	{
+		final DisplayImplJ3D display = new DisplayImplJ3D(title);
+
 		// add spatial display mappings
 		display.addMap(new ScalarMap(xType, Display.XAxis));
 		display.addMap(new ScalarMap(yType, Display.YAxis));
@@ -232,8 +255,6 @@ public class VisualizeTiles implements PlugIn {
 		display.addReference(ref);
 
 		display.getGraphicsModeControl().setScaleEnable(true);
-
-		IJ.showProgress(1);
 
 		return display;
 	}
