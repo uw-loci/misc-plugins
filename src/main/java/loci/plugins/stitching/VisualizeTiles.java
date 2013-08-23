@@ -237,6 +237,19 @@ public class VisualizeTiles implements PlugIn {
 			}
 		}
 
+		// compute minimum memory requirement
+		long mem = (2 * 4 * sampleCount);
+		final String unit;
+		if (in == null) {
+			mem /= 1024;
+			unit = "KB";
+		}
+		else {
+			mem /= 1024 * 1024;
+			unit = "MB";
+		}
+		IJ.log("Tile field will require " + mem + " " + unit + " of memory");
+
 		// convert tile coordinates into tile domain sets
 		IJ.showStatus("Laying out tiles");
 
