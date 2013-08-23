@@ -206,22 +206,35 @@ public class VisualizeTiles implements PlugIn {
 		// map of random colors per image
 		final HashMap<Integer, Float> randomColors = new HashMap<Integer, Float>();
 
-		// convert tile coordinates into tile domain sets and range samples
+		// convert tile coordinates into tile domain sets
+		IJ.showStatus("Laying out tiles");
+
 		final SampledSet[] sets = new SampledSet[tileCount];
-		final float[][] samples = new float[2][4 * tileCount];
-		for (int i=0; i<tileCount; i++) {
-			IJ.showProgress(i, tileCount);
+		for (int i = 0; i < tileCount; i++) {
 			final Pt pt = coords.get(i);
 			final float xMin = (float) pt.x;
 			final float yMin = (float) pt.y;
 			final float xMax = (float) (pt.x + pt.w);
 			final float yMax = (float) (pt.y + pt.h);
-			sets[i] = new Linear2DSet(xyType, xMin, xMax, 2, yMin, yMax, 2);
+
+			int xLen = 2, yLen = 2;
+			sets[i] = new Linear2DSet(xyType, xMin, xMax, xLen, yMin, yMax, yLen);
+		}
+
+		// compute range samples for each tile
+		final float[][] samples = new float[2][4 * tileCount];
+		int sampleIndex = 0;
+		for (int i = 0; i < tileCount; i++) {
+			IJ.showStatus("Processing tile #" + (i + 1) + "/" + tileCount);
+			IJ.showProgress(i, tileCount);
+			final Pt pt = coords.get(i);
+
+			// populate 2x2 tile with random color
 			final float color = color(pt.i, randomColors);
-			for (int j=0; j<4; j++) {
-				final int index = 4 * i + j;
-				samples[0][index] = (float) pt.z;
-				samples[1][index] = color;
+			for (int j = 0; j < 4; j++) {
+				samples[0][sampleIndex] = (float) pt.z;
+				samples[1][sampleIndex] = color;
+				sampleIndex++;
 			}
 		}
 
