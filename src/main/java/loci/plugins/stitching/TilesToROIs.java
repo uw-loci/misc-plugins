@@ -150,11 +150,12 @@ public class TilesToROIs implements PlugIn {
 		IJ.run("ROI Manager...");
 		final RoiManager rm = RoiManager.getInstance();
 		for (final Pt pt : coords) {
-			final Roi roi = new Roi(pt.x - min.x, pt.y - min.y, pt.w, pt.h);
+			final Roi roi =
+				new Roi((int) (pt.x - min.x), (int) (pt.y - min.y), (int) Math
+					.ceil(pt.w), (int) Math.ceil(pt.h));
 			roi.setName(pt.name());
 			rm.addRoi(roi);
 		}
 		rm.runCommand("Show All");
 	}
-
 }
