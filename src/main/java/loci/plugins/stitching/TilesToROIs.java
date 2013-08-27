@@ -78,7 +78,6 @@ public class TilesToROIs implements PlugIn {
 		IJ.showStatus("Initializing dataset");
 		final IFormatReader in = TileUtils.initializeReader(file);
 		final IMetadata meta = (IMetadata) in.getMetadataStore();
-		in.close();
 
 		IJ.showStatus("Reading tile coordinates");
 		final List<Pt> coords = TileUtils.readCoords(meta);
@@ -100,7 +99,8 @@ public class TilesToROIs implements PlugIn {
 		final ImagePlus imp = createImage(file.getName(), mosaicStack);
 
 		Map<Integer, List<Roi>> roisBySlice =
-			getRoisBySlice(coords, min, coordMap);
+			getRoisBySlice(coords, min, coordMap, in);
+		in.close();
 
 		// create a list of rois, sorted by slice
 		List<Roi> rois = new ArrayList<Roi>();
@@ -124,8 +124,10 @@ public class TilesToROIs implements PlugIn {
 	 * Adding slices in this order will cause them to be nicely sorted in
 	 * a RoiManager
 	 */
-	private Map<Integer, List<Roi>> getRoisBySlice(List<Pt> coords, Pt min,
-		Map<Integer, Map<Integer, Map<Integer, Integer>>> coordMap)
+	private Map<Integer, List<Roi>>
+		getRoisBySlice(List<Pt> coords, Pt min,
+			Map<Integer, Map<Integer, Map<Integer, Integer>>> coordMap,
+			IFormatReader in)
 	{
 		Map<Integer, List<Roi>> roiMap = new HashMap<Integer, List<Roi>>();
 
@@ -133,7 +135,12 @@ public class TilesToROIs implements PlugIn {
 			final Roi roi =
 				new Roi((int) (pt.x - min.x), (int) (pt.y - min.y), (int) Math
 					.ceil(pt.w), (int) Math.ceil(pt.h));
-			roi.setName(pt.name());
+			String roiFile =
+				in.getSeriesUsedFiles()[in.getIndex(pt.theZ, pt.theC, pt.theT)];
+			roiFile = roiFile.substring(roiFile.lastIndexOf(File.separator) + 1);
+			String name = pt.name() + "; file=" + roiFile;
+			roi.setName(name);
+
 			roi.setPosition(coordMap.get(pt.theZ).get(pt.theC).get(pt.theT));
 
 			if (roiMap.get(roi.getPosition()) == null) roiMap.put(roi.getPosition(),
