@@ -26,6 +26,7 @@ import ij.ImageJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Roi;
+import ij.measure.Calibration;
 import ij.plugin.PlugIn;
 import ij.plugin.frame.RoiManager;
 
@@ -97,6 +98,8 @@ public class TilesToROIs implements PlugIn {
 
 		IJ.showStatus("Creating image");
 		final ImagePlus imp = createImage(file.getName(), mosaicStack);
+		final Calibration cal = TileUtils.getFirstCalibration(meta);
+		imp.setCalibration(cal);
 
 		Map<Integer, List<Roi>> roisBySlice =
 			getRoisBySlice(coords, min, coordMap, in);
