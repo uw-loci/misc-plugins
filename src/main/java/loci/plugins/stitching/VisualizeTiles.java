@@ -306,7 +306,7 @@ public class VisualizeTiles implements PlugIn {
 			}
 		});
 		frame.getContentPane().add(display.getComponent());
-		frame.pack();
+		frame.setSize(500, 500);
 		frame.setVisible(true);
 	}
 
