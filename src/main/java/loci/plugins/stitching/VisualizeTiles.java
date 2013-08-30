@@ -277,13 +277,11 @@ public class VisualizeTiles implements PlugIn {
 	}
 
 	private float color(final int id, final HashMap<Integer, Float> colors) {
-		Float color = colors.get(id);
-		if (color == null) {
+		if (!colors.containsKey(id)) {
 			// new ID; generate a random color
-			color = (float) Math.random();
-			colors.put(id, color);
+			colors.put(id, (float) Math.random());
 		}
-		return color;
+		return colors.get(id);
 	}
 
 	private void showDisplay(final DisplayImpl display) {
