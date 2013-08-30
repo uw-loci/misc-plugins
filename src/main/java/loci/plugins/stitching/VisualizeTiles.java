@@ -273,6 +273,25 @@ public class VisualizeTiles implements PlugIn {
 		display.getGraphicsModeControl().setScaleEnable(true);
 		display.getGraphicsModeControl().setTextureEnable(true);
 
+		// find global (X, Y) min and max
+		double xMin = Double.POSITIVE_INFINITY, xMax = Double.NEGATIVE_INFINITY;
+		double yMin = Double.POSITIVE_INFINITY, yMax = Double.NEGATIVE_INFINITY;
+		final UnionSet tilesSet = (UnionSet) tiles.getDomainSet();
+		for (SampledSet set : tilesSet.getSets()) {
+			final Linear2DSet linearSet = (Linear2DSet) set;
+			final float[] lo = linearSet.getLow();
+			final float[] hi = linearSet.getHi();
+			if (lo[0] < xMin) xMin = lo[0];
+			if (lo[1] < yMin) yMin = lo[1];
+			if (hi[0] > xMax) xMax = hi[0];
+			if (hi[1] > yMax) yMax = hi[1];
+		}
+		final double xRange = xMax - xMin;
+		final double yRange = yMax - yMin;
+		// ensure X and Y axes match visually (but not Z, which is often too flat)
+		final double[] aspect = { 1.0, yRange / xRange, 1.0 };
+		display.getProjectionControl().setAspectCartesian(aspect);
+
 		return display;
 	}
 
