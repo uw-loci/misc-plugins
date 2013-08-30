@@ -292,6 +292,14 @@ public class VisualizeTiles implements PlugIn {
 		final double[] aspect = { 1.0, yRange / xRange, 1.0 };
 		display.getProjectionControl().setAspectCartesian(aspect);
 
+		display.getProjectionControl().getMatrix();
+		final double xRot = 70, yRot = 0, zRot = 0;
+		final double xPan = 0, yPan = 0, zPan = 0;
+		final double scale = Math.min(0.5, 0.5 / aspect[1]);
+		final double[] matrix =
+			display.make_matrix(xRot, yRot, zRot, scale, xPan, yPan, zPan);
+		display.getProjectionControl().setMatrix(matrix);
+
 		return display;
 	}
 
