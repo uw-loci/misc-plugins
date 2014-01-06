@@ -2,7 +2,7 @@
  * #%L
  * Various plugins for ImageJ.
  * %%
- * Copyright (C) 2010 - 2013 Board of Regents of the University of
+ * Copyright (C) 2010 - 2014 Board of Regents of the University of
  * Wisconsin-Madison.
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
