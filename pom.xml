@@ -1,98 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-    http://maven.apache.org/xsd/maven-v4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+		http://maven.apache.org/xsd/maven-v4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>loci</groupId>
-    <artifactId>pom-loci</artifactId>
-    <version>1.6</version>
-  </parent>
+	<parent>
+		<groupId>loci</groupId>
+		<artifactId>pom-loci</artifactId>
+		<version>1.6</version>
+	</parent>
 
-  <artifactId>misc_plugins</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+	<artifactId>misc_plugins</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
 
-  <name>Miscellaneous ImageJ plugins</name>
-  <description>Various plugins for ImageJ.</description>
-  <inceptionYear>2010</inceptionYear>
+	<name>Miscellaneous ImageJ plugins</name>
+	<description>Various plugins for ImageJ.</description>
+	<inceptionYear>2010</inceptionYear>
 
-  <dependencies>
-    <dependency>
-      <groupId>${bio-formats.groupId}</groupId>
-      <artifactId>loci-common</artifactId>
-      <version>${bio-formats.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${bio-formats.groupId}</groupId>
-      <artifactId>scifio</artifactId>
-      <version>${bio-formats.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${imagej.groupId}</groupId>
-      <artifactId>ij</artifactId>
-      <version>${imagej1.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>visad</groupId>
-      <artifactId>visad-lite</artifactId>
-      <version>2.0.20070828</version>
-    </dependency>
+	<dependencies>
+		<dependency>
+			<groupId>${bio-formats.groupId}</groupId>
+			<artifactId>loci-common</artifactId>
+			<version>${bio-formats.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${bio-formats.groupId}</groupId>
+			<artifactId>scifio</artifactId>
+			<version>${bio-formats.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${imagej.groupId}</groupId>
+			<artifactId>ij</artifactId>
+			<version>${imagej1.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>visad</groupId>
+			<artifactId>visad-lite</artifactId>
+			<version>2.0.20070828</version>
+		</dependency>
 
-    <dependency>
-      <groupId>${bio-formats.groupId}</groupId>
-      <artifactId>bio-formats</artifactId>
-      <version>${bio-formats.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-    <!-- NB: loci:scifio:4.4.8 requires an SLF4J binding at runtime. -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>1.5.10</version>
-      <scope>runtime</scope>
-    </dependency>
-  </dependencies>
+		<dependency>
+			<groupId>${bio-formats.groupId}</groupId>
+			<artifactId>bio-formats</artifactId>
+			<version>${bio-formats.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<!-- NB: loci:scifio:4.4.8 requires an SLF4J binding at runtime. -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.5.10</version>
+			<scope>runtime</scope>
+		</dependency>
+	</dependencies>
 
-  <developers>
-    <developer>
-      <id>curtis</id>
-      <name>Curtis Rueden</name>
-      <email>ctrueden@wisc.edu</email>
-      <url>http://loci.wisc.edu/people/curtis-rueden</url>
-      <organization>UW-Madison LOCI</organization>
-      <organizationUrl>http://loci.wisc.edu/</organizationUrl>
-      <roles>
-        <role>architect</role>
-        <role>developer</role>
-      </roles>
-      <timezone>-6</timezone>
-    </developer>
-    <developer>
-      <id>aivar</id>
-      <name>Aivar Grislis</name>
-      <email>grislis@wisc.edu</email>
-      <url>http://loci.wisc.edu/people/aivar-grislis</url>
-      <organization>UW-Madison LOCI</organization>
-      <organizationUrl>http://loci.wisc.edu/</organizationUrl>
-      <roles>
-        <role>developer</role>
-      </roles>
-      <timezone>-6</timezone>
-    </developer>
-  </developers>
+	<developers>
+		<developer>
+			<id>curtis</id>
+			<name>Curtis Rueden</name>
+			<email>ctrueden@wisc.edu</email>
+			<url>http://loci.wisc.edu/people/curtis-rueden</url>
+			<organization>UW-Madison LOCI</organization>
+			<organizationUrl>http://loci.wisc.edu/</organizationUrl>
+			<roles>
+				<role>architect</role>
+				<role>developer</role>
+			</roles>
+			<timezone>-6</timezone>
+		</developer>
+		<developer>
+			<id>aivar</id>
+			<name>Aivar Grislis</name>
+			<email>grislis@wisc.edu</email>
+			<url>http://loci.wisc.edu/people/aivar-grislis</url>
+			<organization>UW-Madison LOCI</organization>
+			<organizationUrl>http://loci.wisc.edu/</organizationUrl>
+			<roles>
+				<role>developer</role>
+			</roles>
+			<timezone>-6</timezone>
+		</developer>
+	</developers>
 
-  <!-- NB: for project parent, in case of partial checkout -->
-  <repositories>
-    <repository>
-      <id>loci.releases</id>
-      <url>http://dev.loci.wisc.edu/maven2/releases</url>
-    </repository>
-    <repository>
-      <id>loci.snapshots</id>
-      <url>http://dev.loci.wisc.edu/maven2/snapshots</url>
-    </repository>
-  </repositories>
+	<!-- NB: for project parent, in case of partial checkout -->
+	<repositories>
+		<repository>
+			<id>loci.releases</id>
+			<url>http://dev.loci.wisc.edu/maven2/releases</url>
+		</repository>
+		<repository>
+			<id>loci.snapshots</id>
+			<url>http://dev.loci.wisc.edu/maven2/snapshots</url>
+		</repository>
+	</repositories>
 
 </project>
