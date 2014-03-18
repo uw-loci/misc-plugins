@@ -37,9 +37,12 @@ import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import loci.common.services.DependencyException;
+import loci.common.services.ServiceException;
+import loci.common.services.ServiceFactory;
 import loci.formats.FormatException;
-import loci.formats.MetadataTools;
 import loci.formats.meta.IMetadata;
+import loci.formats.services.OMEXMLService;
 import loci.formats.tiff.TiffParser;
 
 /**
@@ -242,7 +245,18 @@ public class StitchOmeTiff implements PlugIn {
 		final TiffParser tiffParser = new TiffParser(dataFile.getAbsolutePath());
 		final String xml = tiffParser.getComment();
 		tiffParser.getStream().close();
-		return MetadataTools.createOMEXMLMetadata(xml);
+		try {
+			final OMEXMLService service =
+				new ServiceFactory().getInstance(OMEXMLService.class);
+			if (service == null) return null;
+			return service.createOMEXMLMetadata(xml);
+		}
+		catch (final DependencyException exc) {
+			return null;
+		}
+		catch (final ServiceException exc) {
+			return null;
+		}
 	}
 
 	/**

@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>loci</groupId>
 		<artifactId>pom-loci</artifactId>
-		<version>1.15</version>
+		<version>1.18</version>
 		<relativePath />
 	</parent>
 
@@ -22,12 +22,61 @@
 	<dependencies>
 		<dependency>
 			<groupId>${bio-formats.groupId}</groupId>
-			<artifactId>loci-common</artifactId>
+			<artifactId>formats-api</artifactId>
+			<version>${bio-formats.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>${bio-formats.groupId}</groupId>
+					<artifactId>jai_imageio</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>${bio-formats.groupId}</groupId>
+					<artifactId>lwf-stubs</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>${bio-formats.groupId}</groupId>
+					<artifactId>specification</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>${bio-formats.groupId}</groupId>
+					<artifactId>turbojpeg</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.esotericsoftware.kryo</groupId>
+					<artifactId>kryo</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.jgoodies</groupId>
+					<artifactId>forms</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>joda-time</groupId>
+					<artifactId>joda-time</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.perf4j</groupId>
+					<artifactId>perf4j</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.scijava</groupId>
+					<artifactId>native-lib-loader</artifactId>
+				</exclusion>
+			</exclusions>
+
+		</dependency>
+		<dependency>
+			<groupId>${bio-formats.groupId}</groupId>
+			<artifactId>formats-bsd</artifactId>
 			<version>${bio-formats.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${bio-formats.groupId}</groupId>
-			<artifactId>scifio</artifactId>
+			<artifactId>ome-xml</artifactId>
+			<version>${bio-formats.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${bio-formats.groupId}</groupId>
+			<artifactId>formats-common</artifactId>
 			<version>${bio-formats.version}</version>
 		</dependency>
 		<dependency>
@@ -39,20 +88,6 @@
 			<groupId>visad</groupId>
 			<artifactId>visad-lite</artifactId>
 			<version>2.0.20070828</version>
-		</dependency>
-
-		<dependency>
-			<groupId>${bio-formats.groupId}</groupId>
-			<artifactId>bio-formats</artifactId>
-			<version>${bio-formats.version}</version>
-			<scope>runtime</scope>
-		</dependency>
-		<!-- NB: loci:scifio:4.4.8 requires an SLF4J binding at runtime. -->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.5.10</version>
-			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
 
