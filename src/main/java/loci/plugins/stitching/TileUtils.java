@@ -23,6 +23,7 @@ package loci.plugins.stitching;
 
 import ij.IJ;
 import ij.io.OpenDialog;
+import ij.measure.Calibration;
 
 import java.io.File;
 import java.io.IOException;
@@ -74,25 +75,72 @@ public final class TileUtils {
 		return in;
 	}
 
+	/**
+	 * Creates a Calibration object using the first valid physical sizes X, Y and
+	 * Z across all series in the provided Metadata. These values can be used to
+	 * standardize the height and width of coordinates when combining multiple
+	 * series (e.g. for coordinates generatead by {@link #readCoords(IMetadata)}).
+	 */
+	public static Calibration getFirstCalibration(final IMetadata meta) {
+		Calibration cal = new Calibration();
+		double calX = -1;
+		double calY = -1;
+		double calZ = -1;
+
+		for (int i = 0; i < meta.getImageCount() &&
+			(calX == -1 || calY == -1 || calZ == -1); i++)
+		{
+			final PositiveFloat physX = meta.getPixelsPhysicalSizeX(i);
+			final PositiveFloat physY = meta.getPixelsPhysicalSizeY(i);
+			final PositiveFloat physZ = meta.getPixelsPhysicalSizeZ(i);
+
+			if (physX != null) calX = physX.getValue();
+			if (physY != null) calY = physY.getValue();
+			if (physZ != null) calZ = physZ.getValue();
+		}
+
+		if (calX == -1) calX = 1;
+		if (calY == -1) calY = 1;
+		if (calZ == -1) calZ = 1;
+
+		cal.pixelWidth = calX;
+		cal.pixelHeight = calY;
+		cal.pixelDepth = calZ;
+
+		return cal;
+	}
+
+	/**
+	 * Generates a list of coordinates from all series described by the provided
+	 * IMetadata object. Each coordinate consists of a stage position and physical
+	 * extents. Stage positions are in uncalibrated units, while dimension lengths
+	 * are standardized to the first valid calibration values found in the 
+	 * provided IMetadata (as calibration can differ between series). For a
+	 * compatible Calibration object, use {@link #getFirstCalibration(IMetadata)}.
+	 */
 	public static List<Pt> readCoords(final IMetadata meta) {
 		final ArrayList<Pt> coords = new ArrayList<Pt>();
 		final int imageCount = meta.getImageCount();
+		Calibration cal = getFirstCalibration(meta);
 		for (int i = 0; i < imageCount; i++) {
-			// compute width and height in calibrated units
+			// compute width and height normalized to the first valid calibration
+			// values found
 			final PositiveFloat physX = meta.getPixelsPhysicalSizeX(i);
 			final PositiveFloat physY = meta.getPixelsPhysicalSizeY(i);
 			final double calX = physX == null ? 1 : physX.getValue();
 			final double calY = physY == null ? 1 : physY.getValue();
-			final double w = meta.getPixelsSizeX(i).getValue() * calX;
-			final double h = meta.getPixelsSizeY(i).getValue() * calY;
+			final double w =
+				meta.getPixelsSizeX(i).getValue() * calX / cal.pixelWidth;
+			final double h =
+				meta.getPixelsSizeY(i).getValue() * calY / cal.pixelHeight;
 
 			final int planeCount = meta.getPlaneCount(i);
 			for (int p = 0; p < planeCount; p++) {
 				final Integer c = meta.getPlaneTheC(i, p).getValue();
 				final Integer z = meta.getPlaneTheZ(i, p).getValue();
 				final Integer t = meta.getPlaneTheT(i, p).getValue();
-				final Double posX = meta.getPlanePositionX(i, p);
-				final Double posY = meta.getPlanePositionY(i, p);
+				final Double posX = meta.getPlanePositionX(i, p) / calX;
+				final Double posY = meta.getPlanePositionY(i, p) / calY;
 				final Double posZ = meta.getPlanePositionZ(i, p);
 				coords.add(new Pt(i, p, c, z, t, w, h, posX, posY, posZ, t));
 			}
