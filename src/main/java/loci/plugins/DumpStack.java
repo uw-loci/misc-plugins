@@ -78,7 +78,7 @@ public class DumpStack implements PlugIn {
 	{
 		threadInfo(t, sb);
 		for (final StackTraceElement element : trace) {
-			sb.append("\tat ");
+			sb.append("        at ");
 			sb.append(element);
 			sb.append(NL);
 		}
