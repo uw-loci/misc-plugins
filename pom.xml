@@ -21,68 +21,24 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>${bio-formats.groupId}</groupId>
-			<artifactId>formats-api</artifactId>
-			<version>${bio-formats.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>${bio-formats.groupId}</groupId>
-					<artifactId>jai_imageio</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>${bio-formats.groupId}</groupId>
-					<artifactId>lwf-stubs</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>${bio-formats.groupId}</groupId>
-					<artifactId>specification</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>${bio-formats.groupId}</groupId>
-					<artifactId>turbojpeg</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.esotericsoftware.kryo</groupId>
-					<artifactId>kryo</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.jgoodies</groupId>
-					<artifactId>forms</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>joda-time</groupId>
-					<artifactId>joda-time</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.perf4j</groupId>
-					<artifactId>perf4j</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.scijava</groupId>
-					<artifactId>native-lib-loader</artifactId>
-				</exclusion>
-			</exclusions>
-
-		</dependency>
-		<dependency>
-			<groupId>${bio-formats.groupId}</groupId>
-			<artifactId>formats-bsd</artifactId>
-			<version>${bio-formats.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${bio-formats.groupId}</groupId>
-			<artifactId>ome-xml</artifactId>
-			<version>${bio-formats.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${bio-formats.groupId}</groupId>
-			<artifactId>formats-common</artifactId>
-			<version>${bio-formats.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${imagej.groupId}</groupId>
+			<groupId>net.imagej</groupId>
 			<artifactId>ij</artifactId>
-			<version>${imagej1.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ome</groupId>
+			<artifactId>formats-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ome</groupId>
+			<artifactId>formats-bsd</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ome</groupId>
+			<artifactId>formats-common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ome</groupId>
+			<artifactId>ome-xml</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>visad</groupId>
