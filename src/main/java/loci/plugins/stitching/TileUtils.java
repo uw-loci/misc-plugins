@@ -35,7 +35,9 @@ import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.MetadataTools;
 import loci.formats.meta.IMetadata;
-import ome.xml.model.primitives.PositiveFloat;
+import ome.units.UNITS;
+import ome.units.quantity.Length;
+import ome.xml.model.primitives.PositiveInteger;
 
 /**
  * Utility methods for stitching plugins.
@@ -90,13 +92,13 @@ public final class TileUtils {
 		for (int i = 0; i < meta.getImageCount() &&
 			(calX == -1 || calY == -1 || calZ == -1); i++)
 		{
-			final PositiveFloat physX = meta.getPixelsPhysicalSizeX(i);
-			final PositiveFloat physY = meta.getPixelsPhysicalSizeY(i);
-			final PositiveFloat physZ = meta.getPixelsPhysicalSizeZ(i);
+			final Double physX = physicalSizeX(meta, i);
+			final Double physY = physicalSizeY(meta, i);
+			final Double physZ = physicalSizeZ(meta, i);
 
-			if (physX != null) calX = physX.getValue();
-			if (physY != null) calY = physY.getValue();
-			if (physZ != null) calZ = physZ.getValue();
+			if (physX != null) calX = physX;
+			if (physY != null) calY = physY;
+			if (physZ != null) calZ = physZ;
 		}
 
 		if (calX == -1) calX = 1;
@@ -125,37 +127,122 @@ public final class TileUtils {
 		for (int i = 0; i < imageCount; i++) {
 			// compute width and height normalized to the first valid calibration
 			// values found
-			final PositiveFloat physX = meta.getPixelsPhysicalSizeX(i);
-			final PositiveFloat physY = meta.getPixelsPhysicalSizeY(i);
-			final double calX = physX == null ? 1 : physX.getValue();
-			final double calY = physY == null ? 1 : physY.getValue();
-			final double w =
-				meta.getPixelsSizeX(i).getValue() * calX / cal.pixelWidth;
-			final double h =
-				meta.getPixelsSizeY(i).getValue() * calY / cal.pixelHeight;
+			final double calX = physicalSizeX(meta, i, 1);
+			final double calY = physicalSizeY(meta, i, 1);
+			final double w = sizeX(meta, i) * calX / cal.pixelWidth;
+			final double h = sizeY(meta, i) * calY / cal.pixelHeight;
 
 			final int planeCount = meta.getPlaneCount(i);
 			for (int p = 0; p < planeCount; p++) {
 				final Integer c = meta.getPlaneTheC(i, p).getValue();
 				final Integer z = meta.getPlaneTheZ(i, p).getValue();
 				final Integer t = meta.getPlaneTheT(i, p).getValue();
-				final Double posX = meta.getPlanePositionX(i, p) / calX;
-				final Double posY = meta.getPlanePositionY(i, p) / calY;
-				final Double posZ = meta.getPlanePositionZ(i, p);
+				final Double posX = posX(meta, i, p) / calX;
+				final Double posY = posY(meta, i, p) / calY;
+				final Double posZ = posZ(meta, i, p);
 				coords.add(new Pt(i, p, c, z, t, w, h, posX, posY, posZ, t));
 			}
-			try {
-				final Double labelX = meta.getStageLabelX(i);
-				final Double labelY = meta.getStageLabelY(i);
-				final Double labelZ = meta.getStageLabelZ(i);
-				coords.add(new Pt(i, w, h, labelX, labelY, labelZ));
-			}
-			catch (final NullPointerException exc) {
-				// HACK: Workaround for bug in loci:ome-xml:4.4.8.
-			}
+			final Double labelX = stageLabelX(meta, i);
+			final Double labelY = stageLabelY(meta, i);
+			final Double labelZ = stageLabelZ(meta, i);
+			coords.add(new Pt(i, w, h, labelX, labelY, labelZ));
 		}
 
 		return coords;
+	}
+
+	public static Integer sizeX(final IMetadata meta, final int i) {
+		return value(meta.getPixelsSizeX(i));
+	}
+
+	public static Integer sizeY(final IMetadata meta, final int i) {
+		return value(meta.getPixelsSizeY(i));
+	}
+
+	public static Integer sizeZ(final IMetadata meta, final int i) {
+		return value(meta.getPixelsSizeZ(i));
+	}
+
+	public static Double posX(final IMetadata meta, final int i, final int p) {
+		return rawValue(meta.getPlanePositionX(i, p));
+	}
+
+	public static Double posY(final IMetadata meta, final int i, final int p) {
+		return rawValue(meta.getPlanePositionY(i, p));
+	}
+
+	public static Double posZ(final IMetadata meta, final int i, final int p) {
+		return rawValue(meta.getPlanePositionZ(i, p));
+	}
+
+	public static Double physicalSizeX(final IMetadata meta, final int i) {
+		return micronValue(meta.getPixelsPhysicalSizeX(i));
+	}
+
+	public static Double physicalSizeY(final IMetadata meta, final int i) {
+		return micronValue(meta.getPixelsPhysicalSizeY(i));
+	}
+
+	public static Double physicalSizeZ(final IMetadata meta, final int i) {
+		return micronValue(meta.getPixelsPhysicalSizeZ(i));
+	}
+
+	public static double physicalSizeX(final IMetadata meta, final int i,
+		final double defaultValue)
+	{
+		return value(physicalSizeX(meta, i), defaultValue);
+	}
+
+	public static double physicalSizeY(final IMetadata meta, final int i,
+		final double defaultValue)
+	{
+		return value(physicalSizeY(meta, i), defaultValue);
+	}
+
+	public static double physicalSizeZ(final IMetadata meta, final int i,
+		final double defaultValue)
+	{
+		return value(physicalSizeZ(meta, i), defaultValue);
+	}
+
+	public static Double stageLabelX(final IMetadata meta, final int i) {
+		return rawValue(meta.getStageLabelX(i));
+	}
+
+	public static Double stageLabelY(final IMetadata meta, final int i) {
+		return rawValue(meta.getStageLabelY(i));
+	}
+
+	public static Double stageLabelZ(final IMetadata meta, final int i) {
+		return rawValue(meta.getStageLabelZ(i));
+	}
+
+	public static Double rawValue(final Length l) {
+		if (l == null) return null;
+		final Number n = l.value();
+		return n == null ? null : n.doubleValue();
+	}
+
+	public static double rawValue(final Length l, final double defaultValue) {
+		return value(rawValue(l), defaultValue);
+	}
+
+	public static Double micronValue(final Length l) {
+		if (l == null) return null;
+		final Number n = l.value(UNITS.MICROM);
+		return n == null ? null : n.doubleValue();
+	}
+
+	public static double micronValue(final Length l, final double defaultValue) {
+		return value(micronValue(l), defaultValue);
+	}
+
+	public static double value(final Double d, final double defaultValue) {
+		return d == null ? defaultValue : d;
+	}
+
+	public static Integer value(final PositiveInteger pi) {
+		return pi == null ? null : pi.getValue();
 	}
 
 }

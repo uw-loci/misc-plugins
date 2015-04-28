@@ -280,9 +280,9 @@ public class StitchOmeTiff implements PlugIn {
 		final ArrayList<Double> yList = new ArrayList<Double>();
 		final ArrayList<Double> zList = new ArrayList<Double>();
 		for (int iIndex = 0; iIndex < imageCount; iIndex++) {
-			final Double stageLabelX = meta.getStageLabelX(iIndex);
-			final Double stageLabelY = meta.getStageLabelY(iIndex);
-			final Double stageLabelZ = meta.getStageLabelZ(iIndex);
+			final Double stageLabelX = TileUtils.stageLabelX(meta, iIndex);
+			final Double stageLabelY = TileUtils.stageLabelY(meta, iIndex);
+			final Double stageLabelZ = TileUtils.stageLabelZ(meta, iIndex);
 			if (stageLabelX != null) xList.add(stageLabelX);
 			if (stageLabelY != null) yList.add(stageLabelY);
 			if (stageLabelZ != null) zList.add(stageLabelZ);
@@ -359,9 +359,9 @@ public class StitchOmeTiff implements PlugIn {
 		final int dim = hasZ(meta) ? 3 : 2;
 		for (int iIndex = 0; iIndex < imageCount; iIndex++) {
 			// get stage positions for this Image
-			final Double stageLabelX = meta.getStageLabelX(iIndex);
-			final Double stageLabelY = meta.getStageLabelY(iIndex);
-			final Double stageLabelZ = meta.getStageLabelZ(iIndex);
+			final Double stageLabelX = TileUtils.stageLabelX(meta, iIndex);
+			final Double stageLabelY = TileUtils.stageLabelY(meta, iIndex);
+			final Double stageLabelZ = TileUtils.stageLabelZ(meta, iIndex);
 			if (stageLabelX == null || stageLabelY == null) {
 				IJ.log("Warning: Image #" + iIndex + " has no stage position");
 				continue;

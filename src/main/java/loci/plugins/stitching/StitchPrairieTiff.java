@@ -262,7 +262,7 @@ public class StitchPrairieTiff implements PlugIn {
 				if (outIndex == 0) {
 					// initialize fresh writer's dimensional metadata
 					final IMetadata outMeta = MetadataTools.createOMEXMLMetadata();
-					final CoreMetadata core = reader.getCoreMetadata()[0];
+					final CoreMetadata core = reader.getCoreMetadataList().get(0);
 					MetadataTools.populateMetadata(outMeta, 0, null, core);
 					final int sizeZ = stackSizes.get(0);
 					stackSizes.remove(0); // lazy
