@@ -38,7 +38,7 @@ import loci.formats.meta.IMetadata;
 import ome.xml.model.primitives.PositiveFloat;
 
 /**
- * A plugin to visualize the tile layout of a multi-tile dataset in 3D.
+ * Utility methods for stitching plugins.
  * 
  * @author Curtis Rueden
  */
