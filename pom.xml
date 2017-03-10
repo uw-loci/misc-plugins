@@ -16,34 +16,6 @@
 	<description>Various plugins for ImageJ.</description>
 	<inceptionYear>2010</inceptionYear>
 
-	<dependencies>
-		<dependency>
-			<groupId>net.imagej</groupId>
-			<artifactId>ij</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>ome</groupId>
-			<artifactId>formats-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>ome</groupId>
-			<artifactId>formats-bsd</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>ome</groupId>
-			<artifactId>formats-common</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>ome</groupId>
-			<artifactId>ome-xml</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>visad</groupId>
-			<artifactId>visad-lite</artifactId>
-			<version>2.0.20070828</version>
-		</dependency>
-	</dependencies>
-
 	<developers>
 		<developer>
 			<id>ctrueden</id>
@@ -86,4 +58,31 @@
 		</repository>
 	</repositories>
 
+	<dependencies>
+		<dependency>
+			<groupId>net.imagej</groupId>
+			<artifactId>ij</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ome</groupId>
+			<artifactId>formats-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ome</groupId>
+			<artifactId>formats-bsd</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ome</groupId>
+			<artifactId>formats-common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ome</groupId>
+			<artifactId>ome-xml</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>visad</groupId>
+			<artifactId>visad-lite</artifactId>
+			<version>2.0.20070828</version>
+		</dependency>
+	</dependencies>
 </project>
