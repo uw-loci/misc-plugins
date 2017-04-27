@@ -64,6 +64,7 @@ import loci.formats.tiff.TiffParser;
  * <p>
  * The stage unit scaling algorithm (implemented in the {@link #computeScale}
  * method below) is as follows:
+ * </p>
  * <ol>
  * <li>Get the list of X stage coordinates for all tiles, and sort it in
  * ascending order.</li>
@@ -79,7 +80,6 @@ import loci.formats.tiff.TiffParser;
  * of these two values: pixelDistance / stageUnitDistance</li>
  * <li>This computation is repeated for the Y and Z dimensions as well.</li>
  * </ol>
- * </p>
  * <p>
  * Once we have the stage unit scale factors, we can write out the stage
  * positions to the tile configuration file in pixels, for use by the Fiji
